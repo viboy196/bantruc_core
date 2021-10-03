@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using FirebaseAdmin.Messaging;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
 using System;
 using System.Collections.Generic;
@@ -15,10 +16,25 @@ namespace bantruc_core
             return View();
         }
 
-        public PartialViewResult _update(string stt =null , string sip = null, string infoadd = null , string Time = null , string second = null , string chuyen = null)
+        public async Task<PartialViewResult> _updateAsync(string stt =null , string sip = null, string infoadd = null , string Time = null , string second = null , string chuyen = null)
         {
             if(chuyen != null)
             {
+                var message = new MulticastMessage()
+                {
+                    //Tokens = app.Select(c => c.DeviceCode).Distinct().ToList(),
+                    Android = new AndroidConfig { Priority = Priority.High },
+                };
+                var thc = Services.BantrucService._BantrucService.GetTinHieuTruc(stt);
+                message.Data = new Dictionary<string, string>()
+                    {
+                        { "deviceCode", sip},
+                        { "patientId", "id"},
+                        { "patientName", thc.tenBenhnhan},
+                        { "Body", $"Có yêu cầu cuộc gọi từ { thc.tenBenhnhan}" },
+                        { "Title", "Thông báo" }
+                    };
+                var responses = await FirebaseMessaging.DefaultInstance.SendMulticastAsync(message);
                 Hubs.ChatHub.chuyen_bantruc_nvyt("0002", Services.BantrucService._BantrucService.GetTinHieuTruc(chuyen));
                 ViewBag.stt = chuyen;
             }

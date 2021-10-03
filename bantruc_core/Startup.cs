@@ -1,4 +1,6 @@
 using bantruc_core.Demos;
+using FirebaseAdmin;
+using Google.Apis.Auth.OAuth2;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -67,7 +69,10 @@ namespace bantruc_core
                     pattern: "{controller=Home}/{action=Index}/{id?}");
             });
 
-
+            FirebaseApp.Create(new AppOptions()
+            {
+                Credential = GoogleCredential.FromFile(Configuration["fileFireBaseAdmin"]),
+            });
         }
     }
 }
