@@ -1,0 +1,565 @@
+﻿@page
+@model IndexModel
+@{
+    ViewData["Title"] = "Bàn trực số 2";
+    int stt = 0;
+
+
+}
+
+
+
+
+
+<div class="row">
+    <div class="col-md-4">
+        <div class="card text-center">
+            <div class="card-header">
+                Nhóm trực @Hubs.ChatHub.Center_ConnectionId
+            </div>
+            <ul class="list-group list-group-flush">
+                @foreach (var nt in Services.BantrucService._BantrucService.GetNhomTruc())
+                {
+                    <li class="list-group-item active">@nt.tennhomtruc : Đang trực</li>
+                }
+            </ul>
+
+        </div>
+        @foreach (var nt in Services.BantrucService._BantrucService.GetNhomTruc())
+        {
+            <div class="card text-center mt-4">
+                <div class="card-header">
+                    @nt.tennhomtruc
+                </div>
+                <ul class="list-group list-group-flush">
+                    @foreach (var pb in Services.BantrucService._BantrucService.GetPhongBenh())
+                    {
+                        <li class="list-group-item">
+                            <div class="row">
+                                <div class="col-sm-3">
+                                    @pb.tenphongbenh
+                                </div>
+                                <div class="col-sm-9 text-right">
+                                    @foreach (var gb in pb.listGiuongBenh)
+                                    {
+                                        var bn = Services.BantrucService._BantrucService.GetBenhNhan().Find(x => x.Giuong.magiuong == gb.magiuong);
+                                        String strbn;
+                                        var locaiton = gb.ThietBi.SipCode == "800" ? "global" : "local";
+                                        if (bn == null)
+                                        {
+                                            strbn = gb.TenGiuong + " : " + "Trống";
+                                            <div class="row">
+                                                <div class="col-sm-9" style="text-align:left !important">
+                                                    <a>@gb.TenGiuong  </a><a>Trống</a>
+                                                </div>
+
+                                            </div>
+                                        }
+                                        else
+                                        {
+                                            var idbn = "idbn" + gb.ThietBi.SipCode;
+                                            <div class="row">
+                                                <div class="col-sm-9" style="text-align:left !important">
+                                                    <a>@gb.TenGiuong  </a><a id="@idbn">@bn.TenBenhNhan</a>
+                                                </div>
+                                                <div class="col-sm-3">
+                                                    <button class="btn btn btn-outline-info btn-sm mb-2" onclick="Call('@gb.ThietBi.SipCode', null, '@locaiton')">Gọi</button>
+
+                                                </div>
+                                            </div>
+                                        }
+
+
+
+                                    }
+
+                                </div>
+
+
+                            </div>
+
+                        </li>
+                    }
+
+                </ul>
+
+            </div>
+        }
+
+
+        @*<div class="card text-center mt-4">
+            <div class="card-header">
+                Ngoại trú 2
+            </div>
+            <ul class="list-group list-group-flush">
+                <li class="list-group-item">
+                    <div class="row">
+                        <div class="col-sm-3">
+                            Buồng ảo 124
+                        </div>
+                        <div class="col-sm-9 text-left">
+                            Giường 1: Hoàng Bình Trọng <br />
+                            Giường 2: TRịnh Văn Hoàng
+
+                        </div>
+
+                    </div>
+
+                </li>
+                <li class="list-group-item">
+                    <div class="row">
+                        <div class="col-sm-3">
+                            Buồng ảo 125
+                        </div>
+                        <div class="col-sm-9 text-left">
+                            Giường 1: Hoàng Văn Tám <br />
+                            Giường 2: Đỗ Như Châu
+
+                        </div>
+                    </div>
+
+                </li>
+
+            </ul>
+
+        </div>*@
+    </div>
+    <div class="col-md-8">
+        <ul class="nav nav-tabs" id="myTab" role="tablist">
+            <li class="nav-item">
+                <a class="nav-link active" id="home-tab" data-toggle="tab" href="#home" role="tab" aria-controls="home" aria-selected="true">Tín hiệu <span class="badge badge-danger">3</span></a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" id="profile-tab" data-toggle="tab" href="#profile" role="tab" aria-controls="profile" aria-selected="false">Chế độ bàn trực <span class="badge badge-success">Đang có điều dưỡng trực</span></a>
+            </li>
+            @*<li class="nav-item">
+                    <a class="nav-link" id="contact-tab" data-toggle="tab" href="#contact" role="tab" aria-controls="contact" aria-selected="false">Contact</a>
+                </li>*@
+        </ul>
+        <div class="tab-content" id="myTabContent">
+            <div class="tab-pane fade show active" id="home" role="tabpanel" aria-labelledby="home-tab">
+                <ul id="listtinhieu" class="list-group list-group-flush">
+
+                    @{
+                        var list = Services.BantrucService._BantrucService.GetTinHieuTruc();
+                        for (int i = list.Count - 1; i >= 0; i--)
+                        {
+
+                            <li id="th-@list[i].Id" class="list-group-item">
+                                <partial name="/Views/Home/_update.cshtml" model='list[i]' />
+
+                            </li>
+                        }
+
+
+                    }
+
+                </ul>
+            </div>
+            <div class="tab-pane fade" id="profile" role="tabpanel" aria-labelledby="profile-tab">
+                <form class="mt-4">
+                    <div class="form-group">
+                        <label for="exampleFormControlSelect2">Người đang trực</label>
+                        <select multiple class="form-control" id="exampleFormControlSelect2">
+                            <option selected> Đỗ Mai Linh</option>
+                            <option selected>Hoàng Văn Quyền</option>
+                            <option>Mai Văn Hòa</option>
+
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="exampleFormControlSelect2">Bàn trực hoạt động tại</label>
+                        <select multiple class="form-control" id="exampleFormControlSelect2">
+                            <option selected> Hoạt động tại bệnh viện</option>
+                            <option>Hoạt động online</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="exampleFormControlSelect2">Chế độ hoạt động tự động khi bàn trực online</label>
+                        <select multiple class="form-control" id="exampleFormControlSelect2">
+                            <option>Tắt chế độ tự động </option>
+                            <option selected>Tự động chuyển cho App thành viên nhóm trực sau 1 phút không được xử lý</option>
+                            <option>Tự động chuyển cho App thành viên nhóm trực sau 2 phút không được xử lý</option>
+                            <option>Tự động chuyển cho App thành viên nhóm trực sau 5 phút không được xử lý</option>
+
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="exampleFormControlSelect2">Chế độ hoạt động tự động khi bàn trực không hoạt động</label>
+                        <select multiple class="form-control" id="exampleFormControlSelect2">
+                            <option>Tắt chế độ tự động </option>
+                            <option selected>Tự động chuyển cho App thành viên nhóm trực </option>
+
+                        </select>
+                    </div>
+
+                </form>
+            </div>
+            @*<div class="tab-pane fade" id="contact" role="tabpanel" aria-labelledby="contact-tab">...</div>*@
+        </div>
+    </div>
+</div>
+<style>
+    .cl_c2k_btn {
+        height: 60px !important;
+    }
+    .modal {
+        pointer-events: none !important;
+    }
+
+    .modal-dialog {
+        pointer-events: all !important;
+    }
+</style>
+<div class="modal hide fade in" data-keyboard="false" data-backdrop="static" id="Modal_newcall" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Có thông Báo trợ giúp</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" id="newcall_tenbenhnhan">
+
+            </div>
+
+            <div class="modal-footer">
+                <div id="c2k_container_0" title="" style="text-align: center; ">
+                    <!--rewrite the CALLTO and uncomment the following line to enable support for ancient browsers-->
+                    <!--<a href="tel://CALLTO" id="c2k_alternative_url">CALLTO</a>-->
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal hide fade in" data-keyboard="false" data-backdrop="static" id="modacall" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">CALL</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+
+
+            <div class="modal-body" id="call_benhnhan_text">
+
+            </div>
+
+
+            <div class="modal-footer">
+                <div id="c2k_container_1" title="" style="text-align: center; ">
+                    <!--rewrite the CALLTO and uncomment the following line to enable support for ancient browsers-->
+                    <!--<a href="tel://CALLTO" id="c2k_alternative_url">CALLTO</a>-->
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal hide fade in" data-keyboard="false" data-backdrop="static" id="modasendmess" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modasendmessLabel">ghi chú</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" id="call_benhnhan_text">
+                <div class="mb-3">
+                    <input type="text" class="form-control" id="exampleInputPassword1">
+                </div>
+                <button id="btnmodasendmess" class="btn btn-primary">ghi chú</button>
+            </div>
+        </div>
+    </div>
+</div>
+@{
+    @*if (Demos.Demodulieus.lstinhieutruc.Count > 0)
+        {
+            <div style="display:none" id="newsip">@Demos.Demodulieus.lstinhieutruc[0].mathietbi</div>
+            <div style="display:none" id="newstt">@Demos.Demodulieus.lstinhieutruc[0].stt</div>
+        }
+        else
+        {
+            <div style="display:none" id="newsip"></div>
+            <div style="display:none" id="newstt"></div>
+        }*@
+}
+
+
+@section Scripts{
+    <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
+    <script type="text/javascript">
+
+
+        function loadaj(stt) {
+            $.ajax({
+                type: "GET",
+                url: "Home/_update/" + stt,
+                success: function (msg) {
+                    $("#th-" + stt).html(msg);
+                },
+                error: function (req, status, error) {
+                    alert('faile');
+                }
+            });
+        }
+
+
+        $(document).ready(function () {
+
+
+            //$.ajax({
+            //    type: "GET",
+            //    url: "api/ListenBox/5",
+            //    success: function (msg) {
+            //        console.log(msg);
+            //    },
+            //    error: function (req, status, error) {
+            //        alert('faile');
+            //    }
+            //});
+        });
+    </script>
+    <script src="~/webphone/webphone/webphone_api.js?jscodeversion=290"></script>
+    <script src="/webphone/webphone/js/click2call/click2call.js"></script>
+    <script>
+        let _id;
+        let _sip;
+        let sipm = $("#newsip").html();
+        //console.error("sipm : " + sipm);
+        /**Set Configuration parameters*/
+        webphone_api.parameters['autostart'] = 0;   // start the webphone only when button is clicked
+        webphone_api.onAppStateChange(function (state) {
+            if (state === 'loaded') {
+                webphone_api.setparameter('serveraddress', '192.168.137.1'); // yoursipdomain.com your VoIP server IP address or domain name
+                webphone_api.setparameter('username', '300');      // SIP account username
+                webphone_api.setparameter('password', '300');      // SIP account password (see the "Parameters encryption" in the documentation)
+                if (sipm != undefined) {
+                    webphone_api.setparameter('callto', sipm);        // destination number to call
+                }
+                webphone_api.setparameter('autoaction', '0');    // 0=nothing (default), 1=call, 2=chat, 3=video call
+            }
+        });
+        //webphone_api.onCallStateChange(function (status, direction, peername, peerdisplayname, line) {
+
+        //});
+        function Call(sip, id = null, location = null) {
+            alert('sip :' + sip + 'id :' + id + 'localtion :' + location);
+            if (location == 'global') {
+                webphone_api.setparameter('serveraddress', '171.244.133.171'); // yoursipdomain.com your VoIP server IP address or domain name
+                webphone_api.setparameter('username', '801');      // SIP account username
+                webphone_api.setparameter('password', '801ytm');
+                webphone_api.setparameter('callto', sip);
+                webphone_api.start();
+            }
+            else {
+                webphone_api.setparameter('serveraddress', '192.168.137.1'); // yoursipdomain.com your VoIP server IP address or domain name
+                webphone_api.setparameter('username', '300');      // SIP account username
+                webphone_api.setparameter('password', '300');      // SIP account password (see the "Parameters encryption" in the documentation)
+                webphone_api.setparameter('callto', sip);
+                webphone_api.start();
+            }
+            alert('serveraddress :' + webphone_api.getparameter('serveraddress') + '\n' +
+                'username :' + webphone_api.getparameter('username') + '\n' +
+                'password :' + webphone_api.getparameter('password') + '\n' +
+                'callto :' + webphone_api.getparameter('callto'));
+
+            if (id != null) {
+                _id = id;
+                _sip = sip;
+                
+                $("#call_benhnhan_text").text($('#' + "ten_" + id).text())
+                $('#modacall').modal('show');
+            } else {
+                _sip = sip;
+                _id = null;
+                let idten = '#idbn' + sip;
+               
+                $("#call_benhnhan_text").text($(idten).text());
+                $('#modacall').modal('show');
+
+            }
+
+        }
+        function sendmess(id) {
+            _id = id;
+            var phantuchon = $("#modasendmessLabel");
+            $("#modasendmessLabel").text('ghi chú ' + 'bệnh nhân ' + $('#' + "ten_" + id).text())
+            $('#modasendmess').modal('show');
+        }
+        $('#btnmodasendmess').click(function () {
+            var mes = $("#exampleInputPassword1").val();
+
+            $.ajax({
+                type: "GET",
+                url: "Home/_update?stt=" + _id + "&infoadd=" + mes,
+                success: function (msg) {
+                    $("#th-" + _id).html(msg);
+                },
+                error: function (req, status, error) {
+                    alert('faile');
+                }
+            });
+            $("#exampleInputPassword1").val("");
+            $('#modasendmess').modal('hide');
+
+
+        });
+        function Chuyen(id) {
+            $.ajax({
+                type: "GET",
+                url: "Home/_update?chuyen=" + id,
+                success: function (msg) {
+                    $("#th-" + id).html(msg);
+                },
+                error: function (req, status, error) {
+                    alert('faile');
+                }
+            });
+        }
+    </script>
+    <script src="~/lib/microsoft/signalr/dist/browser/signalr.js"></script>
+    <script>
+
+        const connection = new signalR.HubConnectionBuilder()
+            .withUrl("/chathub")
+            .configureLogging(signalR.LogLevel.Information)
+            .build();
+
+        function closem() {
+            $('#exampleModal').modal('hide');
+
+        }
+        async function start() {
+            try {
+                await connection.start();
+                console.log("SignalR Connected.");
+            } catch (err) {
+                console.log(err);
+                setTimeout(start, 5000);
+            }
+        };
+        function ghichep(stt) {
+            connection.invoke("ghichu", stt, "em đây anh oi");
+
+        }
+        connection.onclose(async () => {
+            await start();
+        });
+
+        // Start the connection.
+        start();
+
+        connection.on("updateTinHieu", (stt ) => {
+            $.ajax({
+                type: "GET",
+                url: "Home/_update/" + stt,
+                success: function (msg) {
+                    $("#th-" + stt).html(msg);
+                },
+                error: function (req, status, error) {
+                    alert('faile');
+                }
+            });
+
+        });
+        connection.on("addnewTinHieu", (id ,sip , localtion ) => {
+
+            //let ele = document.getElementById('moda_thongbao');
+            //ele.innerHTML = 'Bệnh Nhân ' + message + ' có yêu cầu';
+            //webphone_api.setparameter('callto', message);
+            //$('#exampleModal').modal('show');
+            _sip = sip;
+            if (localtion == 'global') {
+                webphone_api.setparameter('serveraddress', '171.244.133.171'); // yoursipdomain.com your VoIP server IP address or domain name
+                webphone_api.setparameter('username', '801');      // SIP account username
+                webphone_api.setparameter('password', '801ytm');
+                webphone_api.setparameter('callto', sip);
+                webphone_api.start();
+            }
+            else {
+                webphone_api.setparameter('serveraddress', '192.168.137.1'); // yoursipdomain.com your VoIP server IP address or domain name
+                webphone_api.setparameter('username', '300');      // SIP account username
+                webphone_api.setparameter('password', '300');      // SIP account password (see the "Parameters encryption" in the documentation)
+                webphone_api.setparameter('callto', sip);
+                webphone_api.start();
+            }
+            alert('serveraddress :' + webphone_api.getparameter('serveraddress') + '\n' +
+                'username :' + webphone_api.getparameter('username') + '\n' +
+                'password :' + webphone_api.getparameter('password') + '\n' +
+                'callto :' + webphone_api.getparameter('callto'));
+            $("#listtinhieu").prepend("<li id = 'th-" + id + "' class='list-group-item' >45645</li>");
+            $.ajax({
+                type: "GET",
+                url: "Home/_update?stt=" + id,
+                success: function (msg) {
+                    $("#th-" + id).html(msg);
+                    $('#Modal_newcall').modal('show');
+                    //ten_614fe468d52c5f814489f191
+                    $('#newcall_tenbenhnhan').html($('#ten_' + id).text());
+                },
+                error: function (req, status, error) {
+                    alert('faile');
+                }
+            });
+
+        });
+        connection.on("addnewTinHieucall", (id) => {
+            //let ele = document.getElementById('moda_thongbao');
+            //ele.innerHTML = 'Bệnh Nhân ' + message + ' có yêu cầu';
+            //webphone_api.setparameter('callto', message);
+            //$('#exampleModal').modal('show');
+
+            $("#listtinhieu").prepend("<li id = 'th-" + id + "' class='list-group-item' >45645</li>");
+            $.ajax({
+                type: "GET",
+                url: "Home/_update?stt=" + id,
+                success: function (msg) {
+                    $("#th-" + id).html(msg);
+                },
+                error: function (req, status, error) {
+                    alert('faile');
+                }
+            });
+
+        });
+        connection.on("chuyen_NVYT_BT", (id) => {
+            //let ele = document.getElementById('moda_thongbao');
+            //ele.innerHTML = 'Bệnh Nhân ' + message + ' có yêu cầu';
+            //webphone_api.setparameter('callto', message);
+            //$('#exampleModal').modal('show');
+            $.ajax({
+                type: "GET",
+                url: "Home/_update?stt=" + id,
+                success: function (msg) {
+                    $("#th-" + id).html(msg);
+                },
+                error: function (req, status, error) {
+                    alert('faile');
+                }
+            });
+
+        });
+
+        connection.on("ketquachuyen", (stt, mess) => {
+
+            //let ele = document.getElementById('moda_thongbao');
+            //ele.innerHTML = 'Bệnh Nhân ' + message + ' có yêu cầu';
+            //webphone_api.setparameter('callto', message);
+            //$('#exampleModal').modal('show');
+
+            alert(stt + " " + mess);
+        });
+    </script>
+
+}
+
+
+
+
+

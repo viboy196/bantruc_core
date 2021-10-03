@@ -1,0 +1,29 @@
+﻿@model bantruc_core.Demos.TinHieuTruc
+@{
+
+    var stt = ViewBag.stt != null ? (string)ViewBag.stt:"";
+    var tinhieutruc = stt!= ""?bantruc_core.Services.BantrucService._BantrucService.GetTinHieuTruc(stt):Model;
+    var idten = "ten_" + tinhieutruc.Id;
+    string giuon_phong = tinhieutruc.TenPhongBenh + " " + tinhieutruc.tengiuongbenh;
+    var localtion = tinhieutruc.mathietbi == "800" ? "global" : "local";
+}
+<div class="row">
+    <div class="col-sm-3">
+        <a>@tinhieutruc.tenNhomtruc</a> <br />
+        <a id="@idten">@tinhieutruc.tenBenhnhan</a> <br />
+        <a>@giuon_phong</a>
+        @DateTime.Now
+
+    </div>
+    <div class="col-sm-6" id="col_info_@tinhieutruc.Id">
+        @foreach (var tt in tinhieutruc.infoadd)
+        {
+            <a>@tt</a><br />
+        }
+    </div>
+    <div class="col-sm-3 text-right">
+        <button class="btn btn-outline-info" onclick="Call('@tinhieutruc.mathietbi', '@tinhieutruc.Id','@localtion')">Gọi lại</button>
+        <button class="btn btn-outline-info" onclick="Chuyen('@tinhieutruc.Id')">Chuyển</button>
+        <button class="btn btn-outline-info" onclick="sendmess('@tinhieutruc.Id')">chú thích</button>
+    </div>
+</div>
